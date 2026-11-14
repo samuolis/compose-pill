@@ -112,6 +112,13 @@ fun PillNavigationBar(
                     targetValue = slotWidth * shownIndex.coerceAtLeast(0),
                     animationSpec = if (motionEnabled) spring() else snap(), label = "pill-indicator",
                 )
+                val displayedOffset = if (previewKey != null) {
+                    with(LocalDensity.current) {
+                        val slotPx = slotWidth.toPx()
+                        val logicalX = if (rtl) widthPx - dragX else dragX
+                        (logicalX - slotPx / 2).coerceIn(0f, widthPx - slotPx).toDp()
+                    }
+                } else indicatorOffset
                 val barHeight by animateDpAsState(
                     if (showExpanded) 56.dp * fontScale.coerceAtLeast(1f) else 48.dp,
                     animationSpec = if (motionEnabled) spring() else snap(), label = "pill-height",
@@ -138,7 +145,7 @@ fun PillNavigationBar(
                 Box(Modifier.then(if (overflow) Modifier.horizontalScroll(rememberScrollState()) else Modifier)) {
                 Box(gesture.width(contentWidth).height(barHeight).selectableGroup()) {
                     if (shownIndex >= 0) {
-                        Box(Modifier.offset(x = indicatorOffset).width(slotWidth).fillMaxSize().background(style.selectedColor, style.shape))
+                        Box(Modifier.offset(x = displayedOffset).width(slotWidth).fillMaxSize().background(style.selectedColor, style.shape))
                     }
                     Row(Modifier.fillMaxSize()) {
                         items.forEach { item ->

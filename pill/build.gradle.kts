@@ -1,13 +1,23 @@
+import com.vanniktech.maven.publish.DeploymentValidation
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
     id("com.android.kotlin.multiplatform.library")
+    id("com.vanniktech.maven.publish")
     `maven-publish`
 }
 
 group = "io.github.samuolis"
-version = "0.1.0-SNAPSHOT"
+version = providers.gradleProperty("pillVersion").getOrElse("0.1.0-SNAPSHOT")
+
+if (providers.gradleProperty("release").isPresent) {
+    mavenPublishing {
+        publishToMavenCentral(automaticRelease = true, validateDeployment = DeploymentValidation.PUBLISHED)
+        signAllPublications()
+    }
+}
 
 kotlin {
     jvmToolchain(21)

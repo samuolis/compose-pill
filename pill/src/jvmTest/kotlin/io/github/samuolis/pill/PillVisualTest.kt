@@ -12,6 +12,12 @@ import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.performClick
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
@@ -56,5 +62,28 @@ class PillVisualTest {
         val file = File("build/reports/pill-glass.png")
         file.parentFile.mkdirs()
         ImageIO.write(image, "png", file)
+    }
+
+    @Test fun selectingAnotherDestinationMovesTheIndicator() {
+        compose.setContent {
+            var selected by remember { mutableStateOf("Home") }
+            Box(Modifier.size(360.dp, 100.dp).background(Color(0xFFCCD5E7))) {
+                PillNavigationBar(
+                    items = listOf("Home", "Messages", "Profile").map { label ->
+                        PillNavigationItem(label, label, { BasicText("●") })
+                    },
+                    selectedKey = selected, onSelect = { selected = it },
+                    motionEnabled = false, style = PillBarDefaults.solid(),
+                )
+            }
+        }
+        val before = compose.onRoot().captureToImage().toAwtImage()
+        compose.onNodeWithContentDescription("Messages").performClick()
+        val after = compose.onRoot().captureToImage().toAwtImage()
+        var changed = 0
+        for (y in 0 until before.height) for (x in 0 until before.width) {
+            if (before.getRGB(x, y) != after.getRGB(x, y)) changed++
+        }
+        kotlin.test.assertTrue(changed > 100, "Selection should visibly move the indicator")
     }
 }

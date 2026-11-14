@@ -84,7 +84,7 @@ fun PillSurface(
                 fallbackColorEffect(HazeColorEffect.tint(style.containerColor.copy(alpha = 1f)))
             }
         }
-        shaped.hazeBlur(input = HazeInput.Sources(backdrop.state), style = blur)
+        shaped.hazeBlur(input = HazeInput.Sources(backdrop.state, retention = HazeSourceRetention.ClearWhenUnavailable), style = blur)
     } else {
         shaped.background(style.containerColor.copy(alpha = 1f), style.shape)
     }
@@ -107,5 +107,5 @@ fun PillProgressiveBackdrop(
             progressive(HazeProgressive.verticalGradient(startIntensity = startIntensity, endIntensity = endIntensity))
         }
     }
-    Box(modifier.hazeBlur(input = HazeInput.Sources(backdrop.state), style = style))
+    Box(modifier.hazeBlur(input = HazeInput.Sources(backdrop.state, retention = HazeSourceRetention.ClearWhenUnavailable), style = style))
 }
