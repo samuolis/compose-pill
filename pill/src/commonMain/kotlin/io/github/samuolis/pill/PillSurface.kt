@@ -51,7 +51,12 @@ data class PillBarStyle(
     val shape: Shape = CircleShape,
     val elevation: Dp = 4.dp,
     val blurRadius: Dp = 20.dp,
-)
+) {
+    init {
+        require(elevation.value.isFinite() && elevation.value >= 0f) { "Elevation must be finite and nonnegative" }
+        require(blurRadius.value.isFinite() && blurRadius.value >= 0f) { "Blur radius must be finite and nonnegative" }
+    }
+}
 
 object PillBarDefaults {
     fun frosted(): PillBarStyle = PillBarStyle()
@@ -101,6 +106,7 @@ fun PillProgressiveBackdrop(
     endIntensity: Float = 1f,
 ) {
     require(startIntensity in 0f..1f && endIntensity in 0f..1f)
+    require(blurRadius.value.isFinite() && blurRadius.value >= 0f)
     val style = remember(blurRadius, startIntensity, endIntensity) {
         HazeBlurStyle {
             blurRadius(blurRadius)

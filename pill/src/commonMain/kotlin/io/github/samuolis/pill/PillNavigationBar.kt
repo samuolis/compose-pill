@@ -98,6 +98,8 @@ fun PillNavigationBar(
     var dragX by remember { mutableFloatStateOf(0f) }
     val currentItems by rememberUpdatedState(items)
     val currentOnSelect by rememberUpdatedState(onSelect)
+    val currentExpanded by rememberUpdatedState(expanded)
+    val currentOnExpandRequest by rememberUpdatedState(onExpandRequest)
     LaunchedEffect(selectedKey, items.map { it.key }) { previewKey = null }
     val maxBarWidth by animateDpAsState(
         if (showExpanded) 400.dp else 64.dp * items.size,
@@ -140,7 +142,10 @@ fun PillNavigationBar(
                         onDragEnd = {
                             val target = previewKey
                             previewKey = null
-                            if (target != null) currentOnSelect(target)
+                            if (target != null) {
+                                if (!currentExpanded) currentOnExpandRequest()
+                                currentOnSelect(target)
+                            }
                         },
                         onDragCancel = { previewKey = null },
                     )

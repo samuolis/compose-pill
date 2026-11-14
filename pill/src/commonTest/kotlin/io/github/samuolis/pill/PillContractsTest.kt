@@ -4,6 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
+import androidx.compose.ui.unit.dp
 
 class PillContractsTest {
     private fun item(key: String) = PillNavigationItem(key, key, icon = {})
@@ -14,6 +15,12 @@ class PillContractsTest {
         assertFailsWith<IllegalArgumentException> { validPillSelection(listOf(item("a"), item("a")), "a") }
         assertFailsWith<IllegalArgumentException> { validPillSelection(listOf(item("a")), "missing") }
         validPillSelection(listOf(item("a")), null)
+    }
+
+    @Test
+    fun rejectsInvalidEffectDimensions() {
+        assertFailsWith<IllegalArgumentException> { PillBarStyle(blurRadius = (-1).dp) }
+        assertFailsWith<IllegalArgumentException> { PillBarStyle(elevation = Float.NaN.dp) }
     }
 
     @Test

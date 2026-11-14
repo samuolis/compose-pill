@@ -100,6 +100,29 @@ class PillNavigationBarTest {
         compose.runOnIdle { assertEquals("home", selected); assertEquals(0, count) }
     }
 
+    @Test fun scrubInCompactModeRequestsExpansion() {
+        var selected by mutableStateOf("home")
+        var expansions = 0
+        compose.setContent {
+            PillNavigationBar(
+                items = listOf(
+                    PillNavigationItem("home", "Home", icon = { BasicText("H") }),
+                    PillNavigationItem("search", "Search", icon = { BasicText("S") }),
+                ),
+                selectedKey = selected, onSelect = { selected = it }, expanded = false,
+                onExpandRequest = { expansions++ }, scrubEnabled = true, motionEnabled = false,
+                style = PillBarDefaults.solid(),
+            )
+        }
+        compose.onNodeWithContentDescription("Home").performTouchInput {
+            down(center)
+            moveTo(center.copy(x = center.x + width * 0.8f))
+            moveTo(center.copy(x = center.x + width * 1.3f))
+            up()
+        }
+        compose.runOnIdle { assertEquals("search", selected); assertEquals(1, expansions) }
+    }
+
     @Test fun largeTextKeepsCompactNavigationLabelsVisible() {
         compose.setContent {
             CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 2f)) {
