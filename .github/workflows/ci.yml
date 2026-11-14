@@ -16,7 +16,7 @@ jobs:
       - name: Install Android platform
         run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-37.2'"
       - name: Compile, test, and publish local fixture
-        run: ./gradlew :pill:jvmTest :pill:compileAndroidMain :pill:compileKotlinIosSimulatorArm64 :pill:compileKotlinWasmJs :sample:compileKotlinJvm :pill:publishAllPublicationsToLocalFixtureRepository --no-daemon --continue
+        run: ./gradlew :pill:jvmTest :pill:compileAndroidMain :pill:iosSimulatorArm64Test :pill:compileKotlinWasmJs :sample:compileKotlinJvm :pill:publishAllPublicationsToLocalFixtureRepository --no-daemon --continue
       - name: Verify independent consumer
         run: ./gradlew -p consumer-fixture compileKotlinJvm --no-daemon
       - name: Upload test reports and previews
