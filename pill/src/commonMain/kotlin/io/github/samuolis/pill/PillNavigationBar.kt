@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.sizeIn
@@ -143,15 +146,17 @@ fun PillNavigationBar(
                     )
                 } else Modifier
                 Box(Modifier.then(if (overflow) Modifier.horizontalScroll(rememberScrollState()) else Modifier)) {
-                Box(gesture.width(contentWidth).height(barHeight).selectableGroup()) {
+                Box(gesture.width(contentWidth).heightIn(min = barHeight).selectableGroup()) {
                     if (shownIndex >= 0) {
-                        Box(Modifier.offset(x = displayedOffset).width(slotWidth).fillMaxSize().background(style.selectedColor, style.shape))
+                        Box(Modifier.matchParentSize()) {
+                            Box(Modifier.offset(x = displayedOffset).width(slotWidth).fillMaxHeight().background(style.selectedColor, style.shape))
+                        }
                     }
-                    Row(Modifier.fillMaxSize()) {
+                    Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
                         items.forEach { item ->
                             val selected = item.key == selectedKey
                             Column(
-                                Modifier.weight(1f).fillMaxSize().sizeIn(minWidth = 48.dp, minHeight = 48.dp)
+                                Modifier.weight(1f).fillMaxHeight().sizeIn(minWidth = 48.dp, minHeight = barHeight)
                                     .selectable(selected, enabled = item.enabled, role = Role.Tab) {
                                         if (!expanded) onExpandRequest()
                                         onSelect(item.key)
@@ -162,7 +167,13 @@ fun PillNavigationBar(
                             ) {
                                 Box { item.icon(selected); item.badge?.invoke() }
                                 val label: @Composable () -> Unit = {
-                                    androidx.compose.foundation.text.BasicText(item.label, style = androidx.compose.ui.text.TextStyle(color = if (selected) style.selectedContentColor else style.contentColor), maxLines = 1)
+                                    androidx.compose.foundation.text.BasicText(
+                                        item.label,
+                                        style = androidx.compose.ui.text.TextStyle(
+                                            color = if (selected) style.selectedContentColor else style.contentColor,
+                                            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                                        ),
+                                    )
                                 }
                                 if (motionEnabled) AnimatedVisibility(showExpanded) { label() }
                                 else if (showExpanded) label()

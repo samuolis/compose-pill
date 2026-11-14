@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -124,5 +125,23 @@ class PillNavigationBarTest {
         }
         val width = compose.onNodeWithContentDescription("Item 1").fetchSemanticsNode().size.width
         kotlin.test.assertTrue(width >= with(compose.density) { 48.dp.roundToPx() })
+    }
+
+    @Test fun longScaledLabelFitsInsideItsDestination() {
+        val label = "Long destination label for accessibility"
+        compose.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f, fontScale = 2f)) {
+                Box(Modifier.width(180.dp)) {
+                    PillNavigationBar(
+                        items = listOf(PillNavigationItem("long", label, icon = { BasicText("I") })),
+                        selectedKey = "long", onSelect = {}, motionEnabled = false,
+                        style = PillBarDefaults.solid(),
+                    )
+                }
+            }
+        }
+        val item = compose.onNodeWithContentDescription(label).getUnclippedBoundsInRoot()
+        val text = compose.onNodeWithText(label, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        kotlin.test.assertTrue(text.bottom <= item.bottom, "The label must fit inside its target")
     }
 }
