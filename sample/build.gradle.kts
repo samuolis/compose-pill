@@ -6,9 +6,11 @@ plugins {
 kotlin {
     jvmToolchain(21)
     jvm()
-    sourceSets.jvmMain.dependencies {
-        implementation(project(":pill"))
-        implementation(compose.desktop.currentOs)
+    wasmJs { browser(); binaries.executable() }
+    sourceSets {
+        commonMain.dependencies { implementation(project(":pill")) }
+        jvmMain.dependencies { implementation(compose.desktop.currentOs) }
+        wasmJsMain.dependencies { implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0") }
     }
 }
 compose.desktop { application { mainClass = "io.github.samuolis.pill.sample.MainKt" } }

@@ -38,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -162,6 +163,7 @@ fun PillNavigationBar(
                             val selected = item.key == selectedKey
                             Column(
                                 Modifier.weight(1f).fillMaxHeight().sizeIn(minWidth = 48.dp, minHeight = barHeight)
+                                    .clip(style.shape)
                                     .selectable(selected, enabled = item.enabled, role = Role.Tab) {
                                         if (!expanded) onExpandRequest()
                                         onSelect(item.key)

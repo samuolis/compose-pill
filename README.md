@@ -24,7 +24,7 @@ PillNavigationBar(
 
 A missing backdrop or `PillMaterial.Solid` uses an opaque surface. `PillBarDefaults.glass()` opts into refraction; `PillProgressiveBackdrop` draws a caller-sized progressive blur. Frost and glass use Haze; they are custom effects, not Apple's system Liquid Glass. Non-rounded glass shapes fall back to frost. Set `motionEnabled = false` and use a solid style when your application requests reduced motion or transparency. Older devices and renderers can use a simplified fallback. Do not include sensitive content in a backdrop source if it should not be sampled by floating chrome.
 
-Run the desktop sample with `./gradlew :sample:run`. Run JVM tests with `./gradlew :pill:jvmTest`. Android/iOS/Wasm builds require their respective SDKs. No publication has been made yet.
+Run the desktop sample with `./gradlew :sample:run`. Build the Compose Wasm sample with `./gradlew :sample:wasmJsBrowserDevelopmentWebpack`. Run JVM tests with `./gradlew :pill:jvmTest`. Android/iOS/Wasm builds require their respective SDKs. No publication has been made yet.
 
 Licensed under Apache 2.0; see [LICENSE](LICENSE).
 
