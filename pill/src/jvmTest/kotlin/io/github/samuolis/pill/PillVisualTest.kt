@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -48,7 +49,9 @@ class PillVisualTest {
         compose.setContent {
             val backdrop = rememberPillBackdrop()
             Box(Modifier.size(360.dp, 100.dp)) {
-                Box(Modifier.fillMaxSize().pillBackdropSource(backdrop).background(Color(0xFF789AC3)))
+                Box(Modifier.fillMaxSize().pillBackdropSource(backdrop).background(
+                    Brush.horizontalGradient(listOf(Color(0xFF304F9F), Color(0xFFFFAC52), Color(0xFF46A78C))),
+                ))
                 PillNavigationBar(
                     items = listOf("Home", "Messages", "Profile").map { label ->
                         PillNavigationItem(label, label, { BasicText("●") })
@@ -58,7 +61,14 @@ class PillVisualTest {
                 )
             }
         }
+        compose.mainClock.advanceTimeBy(500)
         val image = compose.onRoot().captureToImage().toAwtImage()
+        var darkPixels = 0
+        for (y in 0 until image.height) for (x in 0 until image.width / 3) {
+            val pixel = image.getRGB(x, y)
+            if (((pixel shr 16) and 0xff) < 50 && ((pixel shr 8) and 0xff) < 50 && (pixel and 0xff) < 50) darkPixels++
+        }
+        kotlin.test.assertTrue(darkPixels > 5, "Selected destination must remain visible over glass")
         val file = File("build/reports/pill-glass.png")
         file.parentFile.mkdirs()
         ImageIO.write(image, "png", file)
