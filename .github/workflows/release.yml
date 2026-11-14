@@ -1,0 +1,55 @@
+name: Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Release version (for example 0.1.0)
+        required: true
+        type: string
+permissions:
+  contents: write
+  actions: read
+concurrency:
+  group: compose-pill-release
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: macos-latest
+    environment: release
+    timeout-minutes: 120
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PILL_VERSION: ${{ inputs.version }}
+      ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.CENTRAL_USERNAME }}
+      ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.CENTRAL_PASSWORD }}
+      ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.MAVEN_SIGNING_KEY }}
+      ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.MAVEN_SIGNING_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verify version, credentials and exact main CI
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$PILL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          [[ -f "docs/releases/$PILL_VERSION.md" ]] || { echo "Missing release notes for $PILL_VERSION"; exit 1; }
+          for name in ORG_GRADLE_PROJECT_mavenCentralUsername ORG_GRADLE_PROJECT_mavenCentralPassword ORG_GRADLE_PROJECT_signingInMemoryKey; do
+            [[ -n "${!name:-}" ]] || { echo "Missing release credential: $name"; exit 1; }
+          done
+          current=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/heads/main" --jq '.object.sha')
+          [[ "$current" == "$GITHUB_SHA" ]] || { echo 'Main advanced; dispatch again from current main.'; exit 1; }
+          count=$(gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs" -f head_sha="$GITHUB_SHA" --jq '[.workflow_runs[] | select(.event == "push" and .head_branch == "main" and .status == "completed" and .conclusion == "success")] | length')
+          [[ "$count" -gt 0 ]] || { echo 'A successful CI run for this exact main revision is required.'; exit 1; }
+          if gh release view "v$PILL_VERSION" >/dev/null 2>&1; then echo 'Release already exists; do not republish.'; exit 1; fi
+      - name: Install Android platform
+        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-37.2'"
+      - name: Reserve release before uploading
+        run: gh release create "v$PILL_VERSION" --target "$GITHUB_SHA" --draft --title "v$PILL_VERSION" --notes 'Maven Central publication is in progress. If interrupted, inspect Central before retrying.'
+      - name: Publish signed artifacts and wait for Central
+        run: ./gradlew :pill:publishToMavenCentral -Prelease -PpillVersion="$PILL_VERSION" --no-daemon
+      - name: Publish GitHub release
+        run: gh release edit "v$PILL_VERSION" --notes-file "docs/releases/$PILL_VERSION.md" --draft=false
