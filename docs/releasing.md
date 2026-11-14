@@ -1,6 +1,8 @@
 # Release
 
-The release workflow runs only on `main`, checks that a successful CI run exists for the exact main commit, and publishes the supplied SemVer version to Maven Central before creating a GitHub release tag on that commit. Do not dispatch it until code review, platform validation and visual review are complete.
+The release workflow runs only on `main`, checks that a successful CI run exists for the exact main commit, and reserves a draft GitHub release and tag before publishing the supplied SemVer version to Maven Central. It publishes the GitHub release after Central succeeds. Do not dispatch it until code review, platform validation and visual review are complete.
+
+Add `docs/releases/<version>.md` before dispatch; it becomes the published GitHub release notes.
 
 The `release` environment needs `CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `MAVEN_SIGNING_KEY` and, for a password-protected key, `MAVEN_SIGNING_PASSWORD`. The Central namespace must be owned by the publisher and the signing public key must be available to Central. Secrets are never committed. Signing artifacts is separate from Git commit/tag signing.
 
