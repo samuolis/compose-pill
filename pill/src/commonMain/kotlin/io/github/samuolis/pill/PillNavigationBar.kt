@@ -45,7 +45,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 
@@ -167,7 +167,7 @@ fun PillNavigationBar(
                                     .selectable(selected, enabled = item.enabled, role = Role.Tab) {
                                         if (!expanded) onExpandRequest()
                                         onSelect(item.key)
-                                    }.semantics { contentDescription = item.contentDescription }
+                                    }.clearAndSetSemantics { contentDescription = item.contentDescription }
                                     .alpha(if (item.enabled) 1f else 0.4f),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally,

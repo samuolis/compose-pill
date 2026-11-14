@@ -16,7 +16,11 @@ jobs:
       - name: Install Android platform
         run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-37.2'"
       - name: Compile, test, and publish local fixture
-        run: ./gradlew :pill:jvmTest :pill:compileAndroidMain :pill:iosSimulatorArm64Test :pill:compileKotlinWasmJs :sample:compileKotlinJvm :sample:wasmJsBrowserDevelopmentWebpack :pill:publishAllPublicationsToLocalFixtureRepository --no-daemon --continue
+        run: ./gradlew :pill:jvmTest :pill:compileAndroidMain :pill:iosSimulatorArm64Test :pill:compileKotlinWasmJs :sample:compileKotlinJvm :sample:linkDebugFrameworkIosSimulatorArm64 :sample:wasmJsBrowserDevelopmentWebpack :pill:publishAllPublicationsToLocalFixtureRepository --no-daemon --continue
+      - name: Test iOS sample navigation
+        run: |
+          DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; d=json.load(sys.stdin)["devices"]; print(next(x["udid"] for devices in d.values() for x in devices if x["name"].startswith("iPhone")))')
+          xcodebuild -project iosApp/PillSample.xcodeproj -scheme PillSample -configuration Debug -sdk iphonesimulator -destination "id=$DEVICE_ID" -derivedDataPath "$RUNNER_TEMP/pill-ios" CODE_SIGNING_ALLOWED=NO test
       - name: Verify independent consumer
         run: ./gradlew -p consumer-fixture compileKotlinJvm --no-daemon
       - name: Upload test reports and previews

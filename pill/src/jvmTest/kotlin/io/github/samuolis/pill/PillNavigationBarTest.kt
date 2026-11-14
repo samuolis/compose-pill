@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
@@ -46,7 +48,11 @@ class PillNavigationBarTest {
                 style = PillBarDefaults.solid(),
             )
         }
-        compose.onNodeWithContentDescription("Home").assertIsSelected()
+        val home = compose.onNodeWithContentDescription("Home")
+        home.assertIsSelected()
+        val semantics = home.fetchSemanticsNode().config
+        assertEquals(listOf("Home"), semantics.getOrNull(SemanticsProperties.ContentDescription))
+        assertEquals(null, semantics.getOrNull(SemanticsProperties.Text))
         compose.onNodeWithContentDescription("Disabled").assertIsNotEnabled()
         compose.onNodeWithContentDescription("Search").performClick().assertIsSelected()
         compose.runOnIdle { assertEquals(1, count) }
