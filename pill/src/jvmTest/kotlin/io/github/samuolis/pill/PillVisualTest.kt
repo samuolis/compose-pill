@@ -96,4 +96,22 @@ class PillVisualTest {
         }
         kotlin.test.assertTrue(changed > 100, "Selection should visibly move the indicator")
     }
+
+    @Test fun renderCompactNavigation() {
+        compose.setContent {
+            Box(Modifier.size(320.dp, 100.dp).background(Color(0xFFCCD5E7))) {
+                PillNavigationBar(
+                    items = listOf("Home", "Messages", "Search", "Profile").map { label ->
+                        PillNavigationItem(label, label, { BasicText("●") })
+                    },
+                    selectedKey = "Messages", onSelect = {}, expanded = false,
+                    motionEnabled = false, style = PillBarDefaults.solid(),
+                )
+            }
+        }
+        val image = compose.onRoot().captureToImage().toAwtImage()
+        val file = File("build/reports/pill-compact.png")
+        file.parentFile.mkdirs()
+        ImageIO.write(image, "png", file)
+    }
 }
