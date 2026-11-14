@@ -1,0 +1,30 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Install Android platform
+        run: "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager 'platforms;android-37.2'"
+      - name: Compile, test, and publish local fixture
+        run: ./gradlew :pill:jvmTest :pill:compileAndroidMain :pill:compileKotlinIosSimulatorArm64 :pill:compileKotlinWasmJs :sample:compileKotlinJvm :pill:publishAllPublicationsToLocalFixtureRepository --no-daemon --continue
+      - name: Verify independent consumer
+        run: ./gradlew -p consumer-fixture compileKotlinJvm --no-daemon
+      - name: Upload test reports and previews
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-pill-test-evidence
+          path: |
+            pill/build/reports/tests/
+            pill/build/reports/pill-*.png
+          if-no-files-found: warn
