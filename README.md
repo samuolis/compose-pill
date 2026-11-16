@@ -62,3 +62,5 @@ Frost and glass are custom effects built with [Haze](https://github.com/chrisban
 ## Development
 
 Run `./gradlew :pill:jvmTest` for JVM tests. See [contributing](CONTRIBUTING.md) and [release setup](docs/releasing.md). Compose Pill is licensed under [Apache 2.0](LICENSE).
+
+The sample and website use the [Inter typeface](third-party/INTER-LICENSE.txt) and [Lucide icons](third-party/LUCIDE-LICENSE.txt), under their respective open-source licenses.
