@@ -50,6 +50,6 @@ jobs:
       - name: Reserve release before uploading
         run: gh release create "v$PILL_VERSION" --target "$GITHUB_SHA" --draft --title "v$PILL_VERSION" --notes 'Maven Central publication is in progress. If interrupted, inspect Central before retrying.'
       - name: Publish signed artifacts and wait for Central
-        run: ./gradlew :pill:publishToMavenCentral -Prelease -PpillVersion="$PILL_VERSION" --no-daemon
+        run: ./gradlew :pill:publishToMavenCentral -Prelease -PpillVersion="$PILL_VERSION" -PSONATYPE_CLOSE_TIMEOUT_SECONDS=3600 --no-daemon
       - name: Publish GitHub release
         run: gh release edit "v$PILL_VERSION" --notes-file "docs/releases/$PILL_VERSION.md" --draft=false
