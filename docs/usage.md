@@ -1,6 +1,6 @@
 # Using Compose Pill
 
-Compose Pill exposes standard Compose UI types. After the first release is published, add `implementation("io.github.samuolis:pill:0.1.0")` to a Compose Multiplatform source set and resolve it from Maven Central. Until then the artifact is only available from a local fixture repository.
+Compose Pill exposes standard Compose UI types. Add `implementation("io.github.samuolis:pill:0.1.0")` to a Compose Multiplatform source set and resolve it from Maven Central. Try the [interactive Wasm demo](https://samuolis.github.io/compose-pill/demo/) or visit the [documentation website](https://samuolis.github.io/compose-pill/).
 
 ## Destinations and state
 
