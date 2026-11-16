@@ -69,7 +69,11 @@ fun PillDemo() {
                 Column(Modifier.fillMaxWidth().background(Color(0xFFE9E6FA)).padding(horizontal = 24.dp, vertical = 30.dp)) {
                     BasicText("COMPOSE PILL  /  LIVE DEMO", style = TextStyle(color = Accent, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.sp))
                     BasicText(selected.replaceFirstChar { it.uppercase() }, Modifier.padding(top = 18.dp), style = TextStyle(color = Ink, fontSize = 30.sp, fontWeight = FontWeight.Bold))
-                    BasicText("A little more room to explore.", Modifier.padding(top = 6.dp), style = TextStyle(color = Muted, fontSize = 14.sp))
+                    BasicText(when (selected) {
+                        "saved" -> "Your saved collection, at a glance."
+                        "profile" -> "A little space that is all yours."
+                        else -> "A little more room to explore."
+                    }, Modifier.padding(top = 6.dp), style = TextStyle(color = Muted, fontSize = 14.sp))
                 }
             }
             item {
