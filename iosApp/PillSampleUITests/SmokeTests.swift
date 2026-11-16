@@ -4,13 +4,13 @@ final class SmokeTests: XCTestCase {
     func testNavigationAndAccessibleLabels() {
         let app = XCUIApplication()
         app.launch()
-        let home = app.buttons["Home"]
-        let messages = app.buttons["Messages"]
-        XCTAssertTrue(home.waitForExistence(timeout: 30))
-        XCTAssertTrue(home.isSelected)
-        XCTAssertTrue(messages.exists)
-        messages.tap()
-        XCTAssertTrue(app.staticTexts["messages · Item 1"].waitForExistence(timeout: 10))
-        XCTAssertTrue(messages.isSelected)
+        let discover = app.buttons["Discover"]
+        let saved = app.buttons["Saved"]
+        XCTAssertTrue(discover.waitForExistence(timeout: 30))
+        XCTAssertTrue(discover.isSelected)
+        XCTAssertTrue(saved.exists)
+        saved.tap()
+        XCTAssertTrue(app.staticTexts["Your saved collection, at a glance."].waitForExistence(timeout: 10))
+        XCTAssertTrue(saved.isSelected)
     }
 }

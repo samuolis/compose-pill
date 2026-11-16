@@ -1,33 +1,64 @@
 # Compose Pill
 
-Compose Multiplatform floating navigation and frosted toolbar primitives. The library owns the selected pill, optional drag preview, backdrop and scroll minimization. Navigation remains application-owned.
+**A floating navigation bar for the places your app goes.**
 
-See the repository releases for published versions and installation details.
+Compose Pill brings animated selection, expressive surfaces and flexible navigation to Compose Multiplatform. Use your own destinations, icons and colors while your app stays in control of navigation.
+
+[Documentation & live Wasm demo](https://samuolis.github.io/compose-pill/) · [Usage guide](docs/usage.md) · [Releases](https://github.com/samuolis/compose-pill/releases) · [Contributing](CONTRIBUTING.md)
+
+Android · iOS · Desktop JVM · Compose Wasm
+
+## What you get
+
+- **Navigation that moves:** animated selection, optional drag-to-select, scroll minimization, badges and a separate adjacent action.
+- **Surfaces that fit:** solid, frosted and custom glass effects with configurable colors, shape and motion.
+- **Your state, your design:** supply stable destination keys, Compose icon content and the selected key. The app owns navigation and its back stack.
+- **Space for content:** the optional `PillBarLayout` host provides safe-area placement and measured bottom padding for scrolling content.
+
+## Get started
+
+Resolve dependencies from Maven Central and add Compose Pill to your shared source set:
 
 ```kotlin
-val backdrop = rememberPillBackdrop()
-val behavior = rememberPillBarScrollBehavior(PillMinimizeBehavior.OnScrollDown)
-// Mark the scrollable content with Modifier.pillBackdropSource(backdrop).
-// Attach Modifier.nestedScroll(behavior.nestedScrollConnection) to its scrolling parent.
+commonMain.dependencies {
+    implementation("io.github.samuolis:pill:0.1.0")
+}
+```
+
+Provide destinations and react to selections using your existing navigation code:
+
+```kotlin
+val destinations = listOf(
+    PillNavigationItem("home", "Home", icon = { selected -> HomeIcon(selected) }),
+    PillNavigationItem("saved", "Saved", icon = { selected -> SavedIcon(selected) }),
+)
+
 PillNavigationBar(
-    items = items,
-    selectedKey = routeKey,
-    onSelect = { key -> navigate(key) },
-    backdrop = backdrop,
-    expanded = behavior.expanded,
-    onExpandRequest = behavior::expand,
+    items = destinations,
+    selectedKey = currentRoute,
+    onSelect = { route -> navigate(route) },
     scrubEnabled = true,
 )
 ```
 
-`PillBarLayout` offers an optional backdrop/placement host and supplies measured bottom content padding. When placing the bar yourself, the caller owns safe areas, the keyboard and scroll clearance. Supply stable nonempty keys and accessible names; the app owns the current selection and navigation back stack. Badge/icon slots should not contain separately interactive controls. The adjacent action is separate from navigation.
+`HomeIcon`, `SavedIcon`, `currentRoute` and `navigate` are supplied by your application. For backdrop sampling, placement, scroll behavior and complete API guidance, see the [usage guide](docs/usage.md).
 
-A missing backdrop or `PillMaterial.Solid` uses an opaque surface. `PillBarDefaults.glass()` opts into refraction; `PillProgressiveBackdrop` draws a caller-sized progressive blur. Frost and glass use Haze; they are custom effects, not Apple's system Liquid Glass. Non-rounded glass shapes fall back to frost. Set `motionEnabled = false` and use a solid style when your application requests reduced motion or transparency. Older devices and renderers can use a simplified fallback. Do not include sensitive content in a backdrop source if it should not be sampled by floating chrome.
+## Try the sample
 
-Run the desktop sample with `./gradlew :sample:run`. Build the Compose Wasm sample with `./gradlew :sample:wasmJsBrowserDevelopmentWebpack`. For iOS, build `:sample:linkDebugFrameworkIosSimulatorArm64` and open `iosApp/PillSample.xcodeproj`. Run JVM tests with `./gradlew :pill:jvmTest`. Android/iOS/Wasm builds require their respective SDKs.
+Try the [interactive Wasm demo](https://samuolis.github.io/compose-pill/demo/) in a supported browser. It downloads the Compose WebAssembly runtime on first load. The same sample also runs on desktop and iOS:
 
-Licensed under Apache 2.0; see [LICENSE](LICENSE).
+```shell
+./gradlew :sample:run                                  # desktop
+./gradlew :sample:wasmJsBrowserDevelopmentWebpack       # web bundle
+./gradlew :sample:linkDebugFrameworkIosSimulatorArm64   # iOS simulator framework
+```
 
-For a narrow bar with too many destinations, items stay at least 48 dp wide in a horizontally scrollable row; scrubbing is disabled in that overflow state. `PillNavigationBar` keeps labels visible at larger font scales.
+For iOS, open `iosApp/PillSample.xcodeproj` after building the framework. Android and iOS builds require their platform SDKs.
 
-See [usage](docs/usage.md), [contributing](CONTRIBUTING.md), and [release setup](docs/releasing.md).
+## Platform and accessibility notes
+
+Frost and glass are custom effects built with [Haze](https://github.com/chrisbanes/haze); they are not Apple's native Liquid Glass API. Effects can fall back on unsupported renderers. Apps should apply reduced-motion and reduced-transparency preferences, provide localized accessible destination names, and verify contrast, safe areas, keyboard behavior and performance on their target devices. See [usage](docs/usage.md) for details.
+
+## Development
+
+Run `./gradlew :pill:jvmTest` for JVM tests. See [contributing](CONTRIBUTING.md) and [release setup](docs/releasing.md). Compose Pill is licensed under [Apache 2.0](LICENSE).

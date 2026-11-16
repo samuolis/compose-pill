@@ -9,3 +9,5 @@ The `release` environment needs `CENTRAL_USERNAME`, `CENTRAL_PASSWORD`, `MAVEN_S
 Central coordinates are immutable. The workflow creates a draft release before upload; an existing draft blocks a new attempt. If an upload times out or the run is interrupted, inspect the Central Portal deployment and its state before retrying; do not blindly upload the same version again. If Central has already published the artifacts, verify them and finish the draft GitHub release for the same commit rather than rebuilding or publishing another bundle.
 
 A local unsigned check is `./gradlew :pill:publishAllPublicationsToLocalFixtureRepository`, followed by `./gradlew -p consumer-fixture compileKotlinJvm`. These commands do not publish a release.
+
+The documentation website is built from `site/` and the production Wasm sample by `./scripts/build-site.sh`. Pushes to `main` deploy it through the Documentation website workflow to GitHub Pages. The workflow does not publish Maven artifacts. CI also builds the site and retains a preview artifact for review.
