@@ -1,5 +1,7 @@
 package io.github.samuolis.pill
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -37,14 +39,41 @@ class PillContractsTest {
 
 class PillScrollTest {
     @Test
+    fun customScrollObserverUsesStrictThresholdAndIncludesSideEffects() {
+        val directions = mutableListOf<Boolean>()
+        val connection = PillScrollThresholdConnection(
+            thresholdPx = 32f,
+            includeSideEffects = true,
+            inclusiveThreshold = false,
+        ) { directions.add(it) }
+        fun scroll(y: Float) {
+            assertEquals(
+                Offset.Zero,
+                connection.onPostScroll(Offset(0f, y), Offset.Zero, NestedScrollSource.SideEffect),
+            )
+        }
+
+        scroll(-32f)
+        assertEquals(emptyList(), directions)
+        scroll(-1f)
+        scroll(28f)
+        scroll(-20f)
+        scroll(-13f)
+        scroll(33f)
+        assertEquals(listOf(true, true, false), directions)
+    }
+
+    @Test
     fun minimizesOnlyOnConsumedUserScrollAndExpandsOnReverse() {
         val state = PillBarScrollBehavior(PillMinimizeBehavior.OnScrollDown, 20f)
         val connection = state.nestedScrollConnection
         val zero = androidx.compose.ui.geometry.Offset.Zero
         val user = androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput
-        connection.onPostScroll(androidx.compose.ui.geometry.Offset(0f, -12f), zero, user)
+        connection.onPostScroll(Offset(0f, -100f), zero, NestedScrollSource.SideEffect)
         kotlin.test.assertTrue(state.expanded)
-        connection.onPostScroll(androidx.compose.ui.geometry.Offset(0f, -10f), zero, user)
+        connection.onPostScroll(Offset(0f, -12f), zero, user)
+        kotlin.test.assertTrue(state.expanded)
+        connection.onPostScroll(Offset(0f, -8f), zero, user)
         kotlin.test.assertFalse(state.expanded)
         connection.onPostScroll(androidx.compose.ui.geometry.Offset(0f, 25f), zero, user)
         kotlin.test.assertTrue(state.expanded)

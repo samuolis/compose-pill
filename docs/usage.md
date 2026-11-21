@@ -1,6 +1,6 @@
 # Using Compose Pill
 
-Compose Pill exposes standard Compose UI types. Add `implementation("io.github.samuolis:pill:0.1.0")` to a Compose Multiplatform source set and resolve it from Maven Central. Try the [interactive Wasm demo](https://samuolis.github.io/compose-pill/demo/) or visit the [documentation website](https://samuolis.github.io/compose-pill/).
+Compose Pill exposes standard Compose UI types. Add `implementation("io.github.samuolis:pill:0.2.0")` to a Compose Multiplatform source set and resolve it from Maven Central. Try the [interactive Wasm demo](https://samuolis.github.io/compose-pill/demo/) or visit the [documentation website](https://samuolis.github.io/compose-pill/).
 
 ## Destinations and state
 
@@ -23,6 +23,8 @@ Set `motionEnabled = false` when reduced motion is requested. Use a solid style 
 ## Scrolling
 
 `rememberPillBarScrollBehavior(PillMinimizeBehavior.OnScrollDown)` supplies a nested-scroll observer and expanded state. Attach its `nestedScrollConnection` to the scroll owner and pass `behavior.expanded` and `behavior::expand` to the bar. The default is `Never`. The observer does not consume the page's scroll. Users can still activate individual destinations when compact.
+
+Apps that own the bar's state and animation can attach a `PillScrollThresholdConnection` to their scroll owner. It reports direction after the configured pixel threshold and resets the accumulated distance when direction reverses. By default it observes direct input and includes equality at the threshold. Set `includeSideEffects = true` to observe flings and other non-input scroll, or `inclusiveThreshold = false` to require movement past the threshold.
 
 ## Platform status
 
