@@ -1,6 +1,8 @@
 package io.github.samuolis.pill
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -26,14 +28,19 @@ class PillContractsTest {
     }
 
     @Test
-    fun mapsScrubPositionsInBothDirectionsAndRejectsOutside() {
-        assertEquals(0, scrubIndex(0f, 300f, 3, false))
-        assertEquals(2, scrubIndex(299f, 300f, 3, false))
-        assertEquals(2, scrubIndex(0f, 300f, 3, true))
-        assertEquals(0, scrubIndex(300f, 300f, 3, true))
-        assertNull(scrubIndex(-1f, 300f, 3, false))
-        assertNull(scrubIndex(301f, 300f, 3, false))
-        assertNull(scrubIndex(Float.NaN, 300f, 3, false))
+    fun scrubTracksMeasuredTargetsAndIgnoresInvalidCoordinates() {
+        val left = PillScrubTarget("left", PillIndicatorBounds(IntOffset.Zero, IntSize(80, 48)))
+        val right = PillScrubTarget("right", PillIndicatorBounds(IntOffset(80, 0), IntSize(120, 48)))
+        val targets = listOf(right, left)
+        val scrub = PillScrubState()
+        scrub.begin(left.bounds, targets)
+
+        assertNull(scrub.update(Float.NaN, targets))
+        assertEquals("right", scrub.update(100f, targets))
+        assertEquals(IntSize(104, 48), scrub.indicatorBounds?.size)
+        assertNull(scrub.update(110f, targets))
+        assertEquals("right", scrub.finish())
+        assertNull(scrub.finish())
     }
 }
 
