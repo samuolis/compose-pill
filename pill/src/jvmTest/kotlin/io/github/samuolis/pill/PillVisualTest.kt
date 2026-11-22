@@ -1,13 +1,18 @@
 package io.github.samuolis.pill
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.toAwtImage
 import androidx.compose.ui.test.captureToImage
@@ -24,9 +29,45 @@ import org.junit.Rule
 import org.junit.Test
 import java.io.File
 import javax.imageio.ImageIO
+import kotlin.test.assertEquals
 
 class PillVisualTest {
     @get:Rule val compose = createComposeRule()
+
+    @Test fun progressiveEdgeBlurKeepsTheTopOfContentSharp() {
+        compose.setContent {
+            Row {
+                for (blur in listOf(false, true)) {
+                    PillBarLayout(
+                        progressiveEdgeBlur = blur,
+                        modifier = Modifier.size(160.dp, 110.dp),
+                        bar = { Spacer(Modifier.size(80.dp, 32.dp)) },
+                    ) {
+                        Canvas(Modifier.fillMaxSize()) {
+                            val stripe = size.width / 10
+                            repeat(10) { index ->
+                                drawRect(
+                                    color = if (index % 2 == 0) Color.White else Color.Black,
+                                    topLeft = Offset(stripe * index, 0f),
+                                    size = Size(stripe, size.height),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        compose.waitForIdle()
+        val image = compose.onRoot().captureToImage().toAwtImage()
+        val half = image.width / 2
+        val top = image.height / 10
+        val bottom = image.height - 12
+        for (x in 0 until half) assertEquals(image.getRGB(x, top), image.getRGB(x + half, top))
+        kotlin.test.assertTrue(
+            (0 until half).any { x -> image.getRGB(x, bottom) != image.getRGB(x + half, bottom) },
+            "The blurred edge should soften the stripes near the bottom",
+        )
+    }
 
     @Test fun renderSolidNavigation() {
         compose.setContent {

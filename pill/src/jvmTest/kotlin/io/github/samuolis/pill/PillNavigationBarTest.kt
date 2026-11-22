@@ -7,10 +7,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.assertIsDisplayed
@@ -80,6 +85,75 @@ class PillNavigationBarTest {
             up()
         }
         compose.runOnIdle { assertEquals("search", selected); assertEquals(1, count) }
+    }
+
+    @Test fun inlineBarTicksOnceAndSwitchesItsIconBeforeNavigation() {
+        var selected by mutableStateOf("home")
+        val ticks = mutableListOf<HapticFeedbackType>()
+        val feedback = object : HapticFeedback {
+            override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+                ticks.add(hapticFeedbackType)
+            }
+        }
+        compose.setContent {
+            CompositionLocalProvider(LocalHapticFeedback provides feedback) {
+                PillNavigationBar(
+                    items = listOf(
+                        PillNavigationItem("home", "Home", icon = { BasicText("Home icon") }),
+                        PillNavigationItem("search", "Search", icon = { active ->
+                            BasicText(if (active) "Active search icon" else "Search icon")
+                        }),
+                    ),
+                    selectedKey = selected,
+                    onSelect = { selected = it },
+                    scrubEnabled = true,
+                    motionEnabled = false,
+                    style = PillBarDefaults.solid(),
+                    itemLayout = PillItemLayout.Horizontal,
+                )
+            }
+        }
+        val icon = compose.onNodeWithText("Home icon", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val label = compose.onNodeWithText("Home", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        kotlin.test.assertTrue(icon.right < label.left)
+        val home = compose.onNodeWithContentDescription("Home")
+        home.performTouchInput {
+            down(center)
+            moveTo(center.copy(x = center.x + width * 0.8f))
+            moveTo(center.copy(x = center.x + width * 1.3f))
+        }
+        home.assertIsSelected()
+        compose.onNodeWithText("Active search icon", useUnmergedTree = true).assertIsDisplayed()
+        compose.runOnIdle { assertEquals(listOf(HapticFeedbackType.SegmentTick), ticks) }
+        home.performTouchInput { up() }
+        compose.onNodeWithContentDescription("Search").assertIsSelected()
+    }
+
+    @Test fun rightToLeftDragCommitsToTheDestinationOnTheLeft() {
+        var selected by mutableStateOf("home")
+        compose.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                PillNavigationBar(
+                    items = listOf(
+                        PillNavigationItem("home", "Home", icon = { BasicText("H") }),
+                        PillNavigationItem("search", "Search", icon = { BasicText("S") }),
+                    ),
+                    selectedKey = selected,
+                    onSelect = { selected = it },
+                    scrubEnabled = true,
+                    scrubHapticFeedback = null,
+                    motionEnabled = false,
+                    style = PillBarDefaults.solid(),
+                )
+            }
+        }
+        compose.onNodeWithContentDescription("Home").performTouchInput {
+            down(center)
+            moveTo(center.copy(x = center.x - width * 0.8f))
+            moveTo(center.copy(x = center.x - width * 1.3f))
+            up()
+        }
+        compose.onNodeWithContentDescription("Search").assertIsSelected()
     }
 
     @Test fun canceledDragDoesNotNavigate() {

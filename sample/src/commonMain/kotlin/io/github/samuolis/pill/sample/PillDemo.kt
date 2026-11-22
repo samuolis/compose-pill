@@ -39,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.samuolis.pill.PillBarDefaults
+import io.github.samuolis.pill.PillItemLayout
 import io.github.samuolis.pill.PillBarLayout
 import io.github.samuolis.pill.PillMinimizeBehavior
 import io.github.samuolis.pill.PillNavigationBar
@@ -83,6 +84,7 @@ fun PillDemo() {
     val uiFont = sampleFont()
     var selected by remember { mutableStateOf("discover") }
     var material by remember { mutableStateOf("Frosted") }
+    var itemLayout by remember { mutableStateOf(PillItemLayout.Vertical) }
     val behavior = rememberPillBarScrollBehavior(PillMinimizeBehavior.OnScrollDown)
     val destinations = listOf("discover" to HomeIcon, "saved" to SavedIcon, "profile" to ProfileIcon).map { (key, icon) ->
         PillNavigationItem(key, key.replaceFirstChar { it.uppercase() }, icon = { active ->
@@ -96,9 +98,11 @@ fun PillDemo() {
         else -> PillBarDefaults.frosted()
     }
     PillBarLayout(
+        progressiveEdgeBlur = material == "Glass",
         bar = { backdrop ->
             PillNavigationBar(destinations, selected, { selected = it }, backdrop = backdrop,
-                expanded = behavior.expanded, onExpandRequest = behavior::expand, scrubEnabled = true, style = style)
+                expanded = behavior.expanded, onExpandRequest = behavior::expand, scrubEnabled = true,
+                style = style, itemLayout = itemLayout)
         },
     ) { contentPadding ->
         LazyColumn(
@@ -126,6 +130,20 @@ fun PillDemo() {
                                 .selectable(selected = material == option, role = Role.RadioButton) { material = option }
                                 .padding(horizontal = 14.dp), contentAlignment = Alignment.Center) {
                                 BasicText(option, style = TextStyle(fontFamily = uiFont, color = if (material == option) Color.White else Ink, fontSize = 12.sp))
+                            }
+                        }
+                    }
+                    Row(Modifier.padding(top = 8.dp).selectableGroup(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        PillItemLayout.entries.forEach { option ->
+                            Box(
+                                Modifier.defaultMinSize(minHeight = 48.dp)
+                                    .background(if (itemLayout == option) Ink else Color.White, RoundedCornerShape(50))
+                                    .selectable(selected = itemLayout == option, role = Role.RadioButton) { itemLayout = option }
+                                    .padding(horizontal = 14.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                val color = if (itemLayout == option) Color.White else Ink
+                                BasicText(option.name, style = TextStyle(fontFamily = uiFont, color = color, fontSize = 12.sp))
                             }
                         }
                     }
