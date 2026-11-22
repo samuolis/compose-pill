@@ -1,66 +1,46 @@
 # Compose Pill
 
-**A floating navigation bar for the places your app goes.**
+**Floating navigation and glass surfaces for Compose Multiplatform.**
 
-Compose Pill brings animated selection, expressive surfaces and flexible navigation to Compose Multiplatform. Use your own destinations, icons and colors while your app stays in control of navigation.
+Use a pill-shaped tab bar with animated selection, optional drag-to-select, and scroll-to-minimize behavior. Your app owns the selected destination and navigation.
 
-[Documentation & live Wasm demo](https://samuolis.github.io/compose-pill/) · [Usage guide](docs/usage.md) · [Releases](https://github.com/samuolis/compose-pill/releases) · [Contributing](CONTRIBUTING.md)
+[Documentation](https://samuolis.github.io/compose-pill/) · [Live demo](https://samuolis.github.io/compose-pill/demo/) · [Releases](https://github.com/samuolis/compose-pill/releases) · [Klibs.io](https://klibs.io/project/samuolis/compose-pill)
 
-Android · iOS · Desktop JVM · Compose Wasm
+**Platforms** · Android, iOS, JVM desktop, and Compose Wasm.
 
-## What you get
+## Quick start
 
-- **Navigation that moves:** animated selection, optional drag-to-select, scroll minimization, badges and a separate adjacent action.
-- **Surfaces that fit:** solid, frosted and custom glass effects with configurable colors, shape and motion.
-- **Your state, your design:** supply stable destination keys, Compose icon content and the selected key. The app owns navigation and its back stack.
-- **Space for content:** the optional `PillBarLayout` host provides safe-area placement and measured bottom padding for scrolling content.
-
-## Get started
-
-Resolve dependencies from Maven Central and add Compose Pill to your shared source set:
+Add `mavenCentral()` and `google()` to your Gradle repositories. In your Compose Multiplatform module:
 
 ```kotlin
-commonMain.dependencies {
-    implementation("io.github.samuolis:pill:0.1.0")
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.samuolis:pill:0.2.0")
+        }
+    }
 }
 ```
 
-Provide destinations and react to selections using your existing navigation code:
+Create destinations with stable keys and pass the current key to the bar:
 
 ```kotlin
-val destinations = listOf(
-    PillNavigationItem("home", "Home", icon = { selected -> HomeIcon(selected) }),
-    PillNavigationItem("saved", "Saved", icon = { selected -> SavedIcon(selected) }),
-)
-
 PillNavigationBar(
-    items = destinations,
+    items = listOf(
+        PillNavigationItem("home", "Home", icon = { selected -> HomeIcon(selected) }),
+        PillNavigationItem("saved", "Saved", icon = { selected -> SavedIcon(selected) }),
+    ),
     selectedKey = currentRoute,
     onSelect = { route -> navigate(route) },
-    scrubEnabled = true,
 )
 ```
 
-`HomeIcon`, `SavedIcon`, `currentRoute` and `navigate` are supplied by your application. For backdrop sampling, placement, scroll behavior and complete API guidance, see the [usage guide](docs/usage.md).
+Supply your own icon composables, route state, and navigation callback. The bar uses a solid surface until you provide a backdrop.
 
-## Try the sample
+## Documentation
 
-Try the [interactive Wasm demo](https://samuolis.github.io/compose-pill/demo/) in a supported browser. It downloads the Compose WebAssembly runtime on first load. The same sample also runs on desktop and iOS:
+- [Usage guide](docs/usage.md) for placement, solid and frosted surfaces, scroll behavior, accessibility, and supported targets.
+- [Sample app](sample/src/commonMain/kotlin/io/github/samuolis/pill/sample/PillDemo.kt) for a complete integration with a scrollable screen.
+- [Contributing](CONTRIBUTING.md) and [release setup](docs/releasing.md) for developing the library.
 
-```shell
-./gradlew :sample:run                                  # desktop
-./gradlew :sample:wasmJsBrowserDevelopmentWebpack       # web bundle
-./gradlew :sample:linkDebugFrameworkIosSimulatorArm64   # iOS simulator framework
-```
-
-For iOS, open `iosApp/PillSample.xcodeproj` after building the framework. Android and iOS builds require their platform SDKs.
-
-## Platform and accessibility notes
-
-Frost and glass are custom effects built with [Haze](https://github.com/chrisbanes/haze); they are not Apple's native Liquid Glass API. Effects can fall back on unsupported renderers. Apps should apply reduced-motion and reduced-transparency preferences, provide localized accessible destination names, and verify contrast, safe areas, keyboard behavior and performance on their target devices. See [usage](docs/usage.md) for details.
-
-## Development
-
-Run `./gradlew :pill:jvmTest` for JVM tests. See [contributing](CONTRIBUTING.md) and [release setup](docs/releasing.md). Compose Pill is licensed under [Apache 2.0](LICENSE).
-
-The sample and website use the [Inter typeface](third-party/INTER-LICENSE.txt) and [Lucide icons](third-party/LUCIDE-LICENSE.txt), under their respective open-source licenses.
+Licensed under [Apache 2.0](LICENSE). The sample and site use [Inter](third-party/INTER-LICENSE.txt) and [Lucide icons](third-party/LUCIDE-LICENSE.txt).
