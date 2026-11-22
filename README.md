@@ -16,7 +16,7 @@ Add `mavenCentral()` and `google()` to your Gradle repositories. In your Compose
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.samuolis:pill:0.2.0")
+            implementation("io.github.samuolis:pill:0.3.0")
         }
     }
 }

@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -26,11 +28,29 @@ fun PillBarLayout(
     bar: @Composable (PillBackdrop) -> Unit,
     content: @Composable (PaddingValues) -> Unit,
 ) {
+    PillBarLayout(false, modifier, backdrop, bar, content)
+}
+
+/** Overlays a fading blur behind the bar without changing content clearance. */
+@Composable
+fun PillBarLayout(
+    progressiveEdgeBlur: Boolean,
+    modifier: Modifier = Modifier,
+    backdrop: PillBackdrop = rememberPillBackdrop(),
+    bar: @Composable (PillBackdrop) -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
+) {
     var barHeight by remember { mutableIntStateOf(0) }
     val bottomPadding = with(LocalDensity.current) { barHeight.toDp() }
     Box(modifier.fillMaxSize()) {
         Box(Modifier.fillMaxSize().pillBackdropSource(backdrop)) {
             content(PaddingValues(bottom = bottomPadding))
+        }
+        if (progressiveEdgeBlur && bottomPadding > 0.dp) {
+            PillProgressiveBackdrop(
+                backdrop = backdrop,
+                modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().height(bottomPadding),
+            )
         }
         Box(
             Modifier.align(Alignment.BottomCenter).onSizeChanged { barHeight = it.height }

@@ -98,6 +98,7 @@ fun PillDemo() {
         else -> PillBarDefaults.frosted()
     }
     PillBarLayout(
+        progressiveEdgeBlur = material == "Glass",
         bar = { backdrop ->
             PillNavigationBar(destinations, selected, { selected = it }, backdrop = backdrop,
                 expanded = behavior.expanded, onExpandRequest = behavior::expand, scrubEnabled = true,

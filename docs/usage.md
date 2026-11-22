@@ -15,13 +15,15 @@ Follow the [README quick start](../README.md#quick-start) to install the library
 
 ## Destinations and state
 
-Create a `PillNavigationItem` per destination with a stable, nonempty key, localized label and icon composable. Keys identify destinations across reorder and locale changes; labels do not. `selectedKey` and navigation are controlled by the application. `onSelect` is invoked once for a click or a committed scrub, including a reselected item. A canceled scrub does not navigate. Icons receive the committed selection. The sliding indicator shows the drag preview. If destinations can reorder, key any state remembered inside an icon or badge slot by destination.
+Create a `PillNavigationItem` per destination with a stable, nonempty key, localized label and icon composable. Keys identify destinations across reorder and locale changes; labels do not. `selectedKey` and navigation are controlled by the application. `onSelect` is invoked once for a click or a committed scrub, including a reselected item. A canceled scrub does not navigate. Icon content receives visual activation as the indicator passes. Use the selected key and the selection callback for navigation state. Remembered icon and badge content follows the destination key when items reorder.
 
 An icon or badge is visual content, not a nested interactive control. Provide a complete localized `contentDescription` if a badge conveys meaningful information. Use `adjacentAction` for an action such as Create rather than treating it as a destination.
 
+Use `itemLayout = PillItemLayout.Vertical` to stack labels below icons, or `PillItemLayout.Horizontal` to place labels beside them. Scrubbing gives a haptic tick when the preview moves to another enabled destination. Pass `scrubHapticFeedback = null` to turn off ticks.
+
 ## Backdrop and placement
 
-`PillBarLayout` places the bar above safe-drawing insets and returns measured bottom `PaddingValues` for a scrolling body. The sample passes those values as `LazyColumn` content padding. It installs a shared backdrop source around content. If using your own layout, create `rememberPillBackdrop()`, apply `Modifier.pillBackdropSource(backdrop)` to the content behind the bar, and pass the same backdrop to `PillNavigationBar` or `PillSurface`. Avoid placing the bar inside the source it samples.
+`PillBarLayout` places the bar above safe-drawing insets and returns measured bottom `PaddingValues` for a scrolling body. The sample passes those values as `LazyColumn` content padding. It installs a shared backdrop source around content. Use `progressiveEdgeBlur = true` to fade the background into the bottom edge behind the bar. If using your own layout, create `rememberPillBackdrop()`, apply `Modifier.pillBackdropSource(backdrop)` to the content behind the bar, and pass the same backdrop to `PillNavigationBar` or `PillSurface`. Avoid placing the bar inside the source it samples.
 
 The supplied host moves the bar with safe-drawing insets; consumers needing a different keyboard policy should own placement. Verify integration with already-consumed insets and other bottom overlays. When no backdrop is provided, surfaces use an opaque fallback.
 
@@ -29,7 +31,7 @@ The supplied host moves the bar with safe-drawing insets; consumers needing a di
 
 `PillBarDefaults.solid()`, `frosted()` and `glass()` return a `PillBarStyle`; copy it to use your Compose colors, shape and dimensions. Frost and Glass are custom effects rendered by Haze. They are not Apple system Liquid Glass. Unsupported effects may fall back; Glass with a non-rounded shape uses Frosted. `PillProgressiveBackdrop` draws within the supplied modifier bounds, with start/end intensities from zero to one.
 
-Set `motionEnabled = false` when reduced motion is requested. Use a solid style for reduced transparency or when contrast over content is inadequate. The library does not currently read every operating-system accessibility preference automatically. At font scale above 1.3, the bar keeps labels expanded. If destinations cannot fit at 48 dp each, the row scrolls horizontally and disables scrub. When your app selects a destination programmatically, the row keeps its current scroll position.
+Set `motionEnabled = false` when reduced motion is requested. Use a solid style for reduced transparency or when contrast over content is inadequate. The library does not currently read every operating-system accessibility preference automatically. At font scale above 1.3, the bar keeps labels expanded. If destinations cannot fit at 48 dp each, the row scrolls horizontally and disables scrub. The bar brings an offscreen selected destination into view.
 
 ## Scrolling
 
